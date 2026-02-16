@@ -115,17 +115,17 @@ ibus_semidead_engine_init_tree(GNode *root,
     guint keyval = ibus_keyval_from_name(keyval_name);
     g_return_if_fail(keyval);
 
-    GNode *symbol_node = g_node_append_data(root, keyval);
+    GNode *symbol_node = g_node_append_data(root, GUINT_TO_POINTER(keyval));
 
-    gchar *vowel_keyval_name[2];
-    vowel_keyval_name[1] = NULL;
+    gchar vowel_keyval_name[2];
+    vowel_keyval_name[1] = '\0';
+
     while (*from) {
-        *vowel_keyval_name = *from;
-
+        vowel_keyval_name[0] = *from;
         ibus_semidead_debug("add to %s -> %s (%c)\n", keyval_name, vowel_keyval_name,
                             ibus_keyval_from_name(vowel_keyval_name));
-        GNode *vowel_node = g_node_append_data(symbol_node, ibus_keyval_from_name(vowel_keyval_name));
-        g_node_append_data(vowel_node, g_utf8_get_char(to));
+        GNode *vowel_node = g_node_append_data(symbol_node, GUINT_TO_POINTER(ibus_keyval_from_name(vowel_keyval_name)));
+        g_node_append_data(vowel_node, GUINT_TO_POINTER(g_utf8_get_char(to)));
 
         from++;
         to = g_utf8_next_char(to);
@@ -223,8 +223,9 @@ ibus_semidead_engine_update_preedit_text(IBusSemiDeadEngine *sdengine,
     IBusText *text = ibus_text_new_from_static_string(preedit->str);
 
     text->attrs = ibus_attr_list_new();
+
     ibus_attr_list_append(text->attrs,
-                          ibus_attr_underline_new(IBUS_ATTR_UNDERLINE_SINGLE, 0, sdengine->preedit->len));
+                          ibus_attr_hint_new(IBUS_ATTR_TYPE_UNDERLINE, 0, sdengine->preedit->len));
 
     ibus_engine_update_preedit_text_with_mode((IBusEngine *) sdengine, text, preedit->len, TRUE,
                                               IBUS_ENGINE_PREEDIT_CLEAR);
@@ -280,7 +281,7 @@ ibus_semidead_engine_cancel(IBusEngine *engine) {
 static gboolean
 ibus_semidead_engine_match_keyval(IBusSemiDeadEngine *sdengine,
                                   guint keyval) {
-    GNode *node = g_node_find_child(sdengine->cur_node, G_TRAVERSE_NON_LEAVES, keyval);
+    GNode *node = g_node_find_child(sdengine->cur_node, G_TRAVERSE_NON_LEAVES, GUINT_TO_POINTER(keyval));
 
 //    ibus_semidead_debug ("NODE = %s\r\n", node ? ibus_keyval_name(keyval) : "");
     if (node == NULL)
@@ -288,7 +289,7 @@ ibus_semidead_engine_match_keyval(IBusSemiDeadEngine *sdengine,
 
     if (g_node_n_children(node) == 1 && G_NODE_IS_LEAF(g_node_first_child(node))) {
         g_string_assign(sdengine->preedit, ""); // use preedit as a tmp buffer
-        g_string_append_unichar(sdengine->preedit, g_node_first_child(node)->data);
+        g_string_append_unichar(sdengine->preedit, GPOINTER_TO_UINT(g_node_first_child(node)->data));
         ibus_semidead_engine_commit_string(sdengine, sdengine->preedit->str);
 
         ibus_semidead_engine_clean_preedit(sdengine);
