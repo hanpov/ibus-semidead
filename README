@@ -12,25 +12,76 @@ it was the quickest solution I could find due to the lack of information.
 
 The implementation is based on the https://github.com/phuang/ibus-tmpl project.
 
-To install it you need to install the developer libraries for ibus. It was
-only tested in my system (Ubuntu 16.04 LTS + Gnome).
+## Installation
 
+### Prerequisites
+
+The project requires the following packages:
+- Build tools (gcc, make)
+- Autotools (autoconf, automake, libtool)
+- ibus development libraries
+- gettext
+- pkg-config
+- glib2 development libraries
+
+#### Automatic Installation (Recommended)
+
+Run the included script to automatically install all dependencies for your distribution:
+
+```bash
+chmod +x install-deps.sh
+./install-deps.sh
+```
+
+This script supports:
+- Ubuntu/Debian
+- Fedora
+- Arch Linux/Manjaro
+
+#### Manual Installation
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential autoconf automake libtool gettext pkg-config libibus-dev libglib2.0-dev
+```
+
+**Fedora:**
+```bash
+sudo dnf install -y gcc make autoconf automake libtool gettext pkgconfig ibus-devel glib2-devel
+```
+
+**Arch Linux/Manjaro:**
+```bash
+sudo pacman -S --noconfirm base-devel autoconf automake libtool gettext pkg-config ibus glib2
+```
+
+### Build and Installation
+
+After installing the dependencies, run:
+
+```bash
 ./autogen.sh
 ./configure --prefix=/usr
 make
 sudo make install
+```
 
+### Configuration
 
-It is necessary to set ibus as the input method. You can do this by setting the
-environment variables
+Set the required environment variables:
 
-GTK_IM_MODULE=ibus
-QT_IM_MODULE=ibus
-XMODIFIERS=@im=ibus
+```bash
+export GTK_IM_MODULE=ibus
+export QT_IM_MODULE=ibus
+export XMODIFIERS=@im=ibus
+```
 
+Restart the ibus daemon and add the input method:
 
-You may need to restart the ibus-daemon and add the new input method using
+```bash
+ibus-daemon -drx
 ibus-setup
+```
 
-After restarting the graphical interface, you should find the keyboard
-US, international semi dead in the system input sources list.
+After restarting your graphical interface, you should find "US, international semi dead" in your system input sources list.
