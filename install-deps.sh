@@ -24,7 +24,7 @@ case "$OS" in
             libtool \
             gettext \
             pkg-config \
-            libibus-dev \
+            libibus-1.0-dev \
             libglib2.0-dev
         ;;
     fedora)
